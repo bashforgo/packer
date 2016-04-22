@@ -1,44 +1,108 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <title>Packer</title>
-        <meta name="viewport" content="width=device-width">
-        <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
-        <!-- build:css styles/styles.css -->
-        <link rel="stylesheet" href="styles/main.css">
-        <!-- endbuild -->
-    </head>
-    <body ng-app="packer" ng-controller="packerCtrl">
-            
-            <header>
-                <h1 class="animate">Packer</h1>
-                <p class="animate">HS pack mass pack opening simulator</p>
-            </header>
-            <main class="animate">
-                
-            </main>
-            <footer class="animate">
-                <hr>
-                <p>SpeedoDevo</p>
-            </footer>
-            
-            <div class="forkme">
-                <a href="https://github.com/SpeedoDevo/packer">Fork me on Github</a>
-            </div>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>Packer</title>
+  <meta name="viewport" content="width=device-width">
+  <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+  <!-- build:css styles/styles.css -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="bower_components/angular-material/angular-material.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+  <!-- endbuild -->
+</head>
+<body ng-app="packer" ng-controller="packerCtrl" ng-cloak>
 
-            <!-- build:js scripts/scripts.js -->
-            <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
-            <script type="text/javascript" src="bower_components/mersennetwister/src/MersenneTwister.js"></script>
+<header>
+  <md-toolbar class="md-primary">
+    <div class="md-toolbar-tools" layout-align="start center">
+      <h2>Packer: HearthStone mass pack opening simulator</h2>
+      <span flex></span>
+    </div>
+  </md-toolbar>
+  <br/>
+</header>
+<main layout="row">
+  <md-content layout="column" flex-offset="10" flex="80">
+    <div ng-repeat="pack in packs" layout="row">
+      <span flex="5">{{$index+1}}</span>
+
+      <div flex="95" layout="row">
+        <card data="card" ng-repeat="card in pack" flex="20"></card>
+      </div>
+    </div>
+    <br/>
+
+    <h2>stats</h2>
+
+    <div layout="column">
+      <table>
+        <tbody>
+        <tr>
+          <td>Rarity</td>
+          <td>Total</td>
+          <td>Golden</td>
+        </tr>
+        <tr>
+          <td>Commons</td>
+          <td>{{stats.norm.comm}} ({{(stats.norm.comm / stats.cards * 100).toFixed(2)}}%)</td>
+          <td>{{stats.gold.comm}}</td>
+        </tr>
+        <tr>
+          <td>Rares</td>
+          <td>{{stats.norm.rare}} ({{(stats.norm.rare / stats.cards * 100).toFixed(2)}}%)</td>
+          <td>{{stats.gold.rare}}</td>
+        </tr>
+        <tr>
+          <td>Epics</td>
+          <td>{{stats.norm.epic}} ({{(stats.norm.epic / stats.cards * 100).toFixed(2)}}%)</td>
+          <td>{{stats.gold.epic}}</td>
+        </tr>
+        <tr>
+          <td>Legendaries</td>
+          <td>{{stats.norm.lgnd}} ({{(stats.norm.lgnd / stats.cards * 100).toFixed(2)}}%)</td>
+          <td>{{stats.gold.lgnd}}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <br/>
+
+    <h2>collection</h2>
+
+    <div>
+
+    </div>
+  </md-content>
+</main>
+<footer>
+  <hr>
+  <p>made by SpeedoDevo with <3</p>
+</footer>
+
+<div class="forkme">
+  <a href="https://github.com/SpeedoDevo/packer">Fork me on Github</a>
+</div>
+
+<!-- build:js scripts/scripts.js -->
+<script type="text/javascript" src="bower_components/angular/angular.js"></script>
+<script type="text/javascript" src="bower_components/angular-animate/angular-animate.js"></script>
+<script type="text/javascript" src="bower_components/angular-aria/angular-aria.js"></script>
+<script type="text/javascript" src="bower_components/angular-messages/angular-messages.js"></script>
+<script type="text/javascript" src="bower_components/angular-material/angular-material.js"></script>
+<script type="text/javascript" src="bower_components/mersennetwister/src/MersenneTwister.js"></script>
 
 
-
-            <script type="text/javascript" src="vendor/browser-polyfill.js"></script>
-
+<script type="text/javascript" src="vendor/browser-polyfill.js"></script>
 
 
-            <script type="text/javascript" src="scripts/app.js"></script>
-            <script type="text/javascript" src="scripts/brl.js"></script>
-            <!-- endbuild -->
-    </body>
+<script type="text/javascript" src="scripts/app.js"></script>
+<script type="text/javascript" src="scripts/brl.js"></script>
+<!-- endbuild -->
+</body>
 </html>

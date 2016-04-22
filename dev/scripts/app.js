@@ -1,34 +1,42 @@
 "use strict";
 
-angular.module('packer', [])
+angular.module('packer', ['ngMaterial'])
   .controller('packerCtrl', ['$scope', '$http', 'BiasedRandomList', function ($scope, $http, RandomList) {
 
     var rand = new MersenneTwister();
     var goldDrops = {comm: 2.0637, rare: 5.5395, epic: 4.5173, lgnd: 7.3107};
-    var cs = {name:'',rarity:'',set:'',playerClass:''};
+    var cs = {name: '', rarity: '', set: '', playerClass: ''};
     var cards = {};
     $scope.set = 'WOG';
 
     $http.get('json/cards.json')
-      .then(function (data){
+      .then(function (data) {
         cards = {};
         cards.data = data.data;
         filterCards();
         packGen();
-        run(50);
+        //var s = {};
+        //run(s, 25000);
+        //console.log(($scope.stats.norm.comm / $scope.stats.cards).toFixed(8)*100);
+        //console.log(($scope.stats.norm.rare / $scope.stats.cards).toFixed(8)*100);
+        //console.log(($scope.stats.norm.epic / $scope.stats.cards).toFixed(8)*100);
+        //console.log(($scope.stats.norm.lgnd / $scope.stats.cards).toFixed(8)*100);
+        packGen();
+        run($scope, 50);
       });
 
-    function run(n) {
+    function run(scope, n) {
       n = n || 50;
-      $scope.packs = [];
+      scope.packs = [];
       for (var i = 0; i < n; i++) {
-        $scope.packs.push(pack());
+        scope.packs.push(pack());
       }
-      console.log($scope.packs);
+
     }
 
     var card;
     var pack;
+
     function packGen() {
       var norm = {
         comm: 0,
@@ -42,6 +50,61 @@ angular.module('packer', [])
         epic: 0,
         lgnd: 0,
       };
+      $scope.stats = {
+        cards: 3,
+        norm: {
+          comm: 2,
+          rare: 0,
+          epic: 0,
+          lgnd: 1,
+        },
+        gold: {
+          comm: 0,
+          rare: 0,
+          epic: 0,
+          lgnd: 0,
+        },
+        extra: {
+          norm: {
+            comm: 0,
+            rare: 0,
+            epic: 0,
+            lgnd: 0,
+          },
+          gold: {
+            comm: 0,
+            rare: 0,
+            epic: 0,
+            lgnd: 0,
+          },
+        },
+        collection: {
+          DRUID: {},
+          HUNTER: {},
+          MAGE: {},
+          PALADIN: {},
+          PRIEST: {},
+          ROGUE: {},
+          SHAMAN: {},
+          WARLOCK: {},
+          WARRIOR: {},
+          NEUTRAL: {
+            'Beckoner of Evil': {norm: 2, gold: 0, rarity: 'comm'},
+            'C\'thun': {norm: 1, gold: 0, rarity: 'lgnd'}
+          },
+        },
+      };
+      var first = true;
+      cards.all.forEach(function (v) {
+        var r = (function () {
+          if (v.rarity === 'LEGENDARY') {
+            return 'lgnd';
+          } else {
+            return v.rarity.toLowerCase().slice(0,4);
+          }
+        })();
+        $scope.stats.collection[v.playerClass || 'NEUTRAL'][v.name] = {norm: 0, gold: 0, rarity: r};
+      });
 
       pack = function () {
         var rarity;
@@ -55,14 +118,38 @@ angular.module('packer', [])
             gold[rarity]++;
           }
         }
+        var p;
 
-        return [
-          card({comm: 99.9801, rare: 0.0199, epic: 0.0000, lgnd: 0.0000}),
-          card({comm: 99.6426, rare: 0.3442, epic: 0.0132, lgnd: 0.0000}),
-          card({comm: 94.7316, rare: 5.1890, epic: 0.0794, lgnd: 0.0000}),
-          card({comm: 64.8421, rare: 33.1326, epic: 1.9856, lgnd: 0.0397}),
-          card({comm: 0.0000, rare: 75.6569, epic: 19.3130, lgnd: 5.0301}),
-        ];
+        if (first) {
+          p = [
+            {"rarity":"comm","gold":false,"detail":{"name":"Beckoner of Evil","rarity":"COMMON","set":"WOG"}},
+            {"rarity":"comm","gold":false,"detail":{"name":"Beckoner of Evil","rarity":"COMMON","set":"WOG"}},
+            //card({comm: 94.7316, rare: 5.1890, epic: 0.0794, lgnd: 0.0000}),
+            //card({comm: 64.8421, rare: 33.1326, epic: 1.9856, lgnd: 0.0397}),
+            card({comm: 95, rare: 4.95, epic: 0.05, lgnd: 0}),
+            card({comm: 65, rare: 33, epic: 1.97, lgnd: 0.03}),
+            {"rarity":"lgnd","gold":false,"detail":{"name":"C'thun","rarity":"LEGENDARY","set":"WOG"}},
+          ];
+
+          first = false;
+        } else {
+          p = [
+            card({comm: 99.99, rare: 0.01, epic: 0, lgnd: 0}),
+            card({comm: 99.8, rare: 0.19, epic: 0.01, lgnd: 0}),
+            card({comm: 96, rare: 3.95, epic: 0.05, lgnd: 0}),
+            card({comm: 70, rare: 28.5, epic: 1.5, lgnd: 0.03}),
+            card({comm: 0, rare: 80, epic: 16, lgnd: 4}),
+          ];
+          //p = [
+          //  card({comm: 99.9801, rare: 0.0199, epic: 0.0000, lgnd: 0.0000}),
+          //  card({comm: 99.6426, rare: 0.3442, epic: 0.0132, lgnd: 0.0000}),
+          //  card({comm: 94.7316, rare: 5.1890, epic: 0.0794, lgnd: 0.0000}),
+          //  card({comm: 64.8421, rare: 33.1326, epic: 1.9856, lgnd: 0.0397}),
+          //  card({comm: 0.0000, rare: 75.6569, epic: 19.3130, lgnd: 5.0301}),
+          //];
+        }
+
+        return p;
       };
 
       card = function card(chances) {
@@ -80,14 +167,16 @@ angular.module('packer', [])
           } else if (norm.lgnd > 40) {
             return ['lgnd', false];
           } else {
-            var list = new RandomList([], function (i) { return i.weight; });
+            var list = new RandomList([], function (i) {
+              return i.weight;
+            });
             for (var r in chances) {
               if (chances.hasOwnProperty(r)) {
                 list.push({rarity: r, weight: chances[r]});
               }
             }
             var chosen = list.peek().rarity;
-            var isGolden = rand.realx()*100 < goldDrops[chosen];
+            var isGolden = rand.realx() * 100 < goldDrops[chosen];
             return [chosen, isGolden];
           }
         })();
@@ -98,6 +187,10 @@ angular.module('packer', [])
         };
         var group = c.gold ? gold : norm;
         group[c.rarity] = 0;
+        $scope.stats.cards++;
+        $scope.stats.norm[c.rarity]++;
+        if (c.gold) $scope.stats.gold[c.rarity]++;
+        $scope.stats.collection[c.detail.playerClass || 'NEUTRAL'][c.detail.name][c.gold ? 'gold' : 'norm']++;
 
         return c;
       };
@@ -127,4 +220,15 @@ angular.module('packer', [])
       cards.rand.lgnd = new RandomList(cards.list.lgnd);
     }
 
-  }]);
+  }])
+  .directive('card', function () {
+
+    return {
+      template: "<div class='card' ng-class='[card.rarity, {gold: card.gold}]'>" +
+      "{{card.gold ? ' G' : '    '}}{{card.rarity[0] | uppercase}} {{card.detail.name}}" +
+      "</div>",
+      link: function (scope, element, attrs) {
+
+      }
+    };
+  });

@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "angular": "1.3.16",
-    "mersennetwister": "^0.2.3"
+    "angular": "1.5.5",
+    "mersennetwister": "^0.2.3",
+    "angular-material": "^1.0.7"
   }
 }
