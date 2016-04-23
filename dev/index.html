@@ -91,8 +91,6 @@
 
     <div layout-align="start center" layout="row">
       <h2>packs</h2>
-      <span flex="5"></span>
-      <md-button ng-click="pack()" class="md-raised" ng-if="!working">JUST ONE MORE PLS</md-button>
     </div>
     <div ng-repeat="pack in packs" layout="row" ng-if="!working">
       <span flex="5">{{$index}}</span>
@@ -101,6 +99,7 @@
         <card data="::card" ng-repeat="card in ::pack" flex-gt-md="20" flex="50" flex-gt-sm="33" flex-xs="100"></card>
       </div>
     </div>
+    <div layout-align="end" layout flex><md-button ng-click="pack()" class="md-raised" ng-if="!working">JUST ONE MORE PLS</md-button></div>
     <div ng-if="working">
       <h3>generating...</h3>
     </div>
