@@ -5,9 +5,28 @@ angular.module('packer', ['ngMaterial'])
 
     var rand = new MersenneTwister();
     var goldDrops = {comm: 2.0637, rare: 5.5395, epic: 4.5173, lgnd: 7.3107};
+    var disenchant = {
+      norm: {
+        comm: 5,
+        rare: 20,
+        epic: 100,
+        lgnd: 400,
+      },
+      gold: {
+        comm: 50,
+        rare: 100,
+        epic: 400,
+        lgnd: 1600,
+      }
+    };
     var cs = {name: '', rarity: '', set: '', playerClass: ''};
     var cards = {};
     $scope.set = 'WOG';
+    $scope.noPacks = 13;
+    $scope.open = function () {
+      packGen();
+      run($scope, $scope.noPacks);
+    };
 
     $http.get('json/cards.json')
       .then(function (data) {
@@ -22,7 +41,7 @@ angular.module('packer', ['ngMaterial'])
         //console.log(($scope.stats.norm.epic / $scope.stats.cards).toFixed(8)*100);
         //console.log(($scope.stats.norm.lgnd / $scope.stats.cards).toFixed(8)*100);
         packGen();
-        run($scope, 50);
+        run($scope, $scope.noPacks);
       });
 
     function run(scope, n) {
@@ -31,7 +50,6 @@ angular.module('packer', ['ngMaterial'])
       for (var i = 0; i < n; i++) {
         scope.packs.push(pack());
       }
-
     }
 
     var card;
@@ -64,19 +82,15 @@ angular.module('packer', ['ngMaterial'])
           epic: 0,
           lgnd: 0,
         },
-        extra: {
+        dust: {
           norm: {
-            comm: 0,
-            rare: 0,
-            epic: 0,
-            lgnd: 0,
+            all: 410,
+            extra: 0,
           },
           gold: {
-            comm: 0,
-            rare: 0,
-            epic: 0,
-            lgnd: 0,
-          },
+            all: 0,
+            extra: 0,
+          }
         },
         collection: {
           DRUID: {},
@@ -89,8 +103,18 @@ angular.module('packer', ['ngMaterial'])
           WARLOCK: {},
           WARRIOR: {},
           NEUTRAL: {
-            'Beckoner of Evil': {norm: 2, gold: 0, rarity: 'comm'},
-            'C\'thun': {norm: 1, gold: 0, rarity: 'lgnd'}
+            'Beckoner of Evil': {
+              norm: 2,
+              gold: 0,
+              rarity: 'comm',
+              "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}
+            },
+            'C\'thun': {
+              norm: 1,
+              gold: 0,
+              rarity: 'lgnd',
+              "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG"}
+            }
           },
         },
       };
@@ -100,10 +124,10 @@ angular.module('packer', ['ngMaterial'])
           if (v.rarity === 'LEGENDARY') {
             return 'lgnd';
           } else {
-            return v.rarity.toLowerCase().slice(0,4);
+            return v.rarity.toLowerCase().slice(0, 4);
           }
         })();
-        $scope.stats.collection[v.playerClass || 'NEUTRAL'][v.name] = {norm: 0, gold: 0, rarity: r};
+        $scope.stats.collection[v.playerClass || 'NEUTRAL'][v.name] = {norm: 0, gold: 0, rarity: r, detail: v};
       });
 
       pack = function () {
@@ -122,13 +146,13 @@ angular.module('packer', ['ngMaterial'])
 
         if (first) {
           p = [
-            {"rarity":"comm","gold":false,"detail":{"name":"Beckoner of Evil","rarity":"COMMON","set":"WOG"}},
-            {"rarity":"comm","gold":false,"detail":{"name":"Beckoner of Evil","rarity":"COMMON","set":"WOG"}},
+            {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
+            {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
             //card({comm: 94.7316, rare: 5.1890, epic: 0.0794, lgnd: 0.0000}),
             //card({comm: 64.8421, rare: 33.1326, epic: 1.9856, lgnd: 0.0397}),
             card({comm: 95, rare: 4.95, epic: 0.05, lgnd: 0}),
             card({comm: 65, rare: 33, epic: 1.97, lgnd: 0.03}),
-            {"rarity":"lgnd","gold":false,"detail":{"name":"C'thun","rarity":"LEGENDARY","set":"WOG"}},
+            {"rarity": "lgnd", "gold": false, "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG"}},
           ];
 
           first = false;
@@ -137,7 +161,7 @@ angular.module('packer', ['ngMaterial'])
             card({comm: 99.99, rare: 0.01, epic: 0, lgnd: 0}),
             card({comm: 99.8, rare: 0.19, epic: 0.01, lgnd: 0}),
             card({comm: 96, rare: 3.95, epic: 0.05, lgnd: 0}),
-            card({comm: 70, rare: 28.5, epic: 1.5, lgnd: 0.03}),
+            card({comm: 70, rare: 28, epic: 1.98, lgnd: 0.02}),
             card({comm: 0, rare: 80, epic: 16, lgnd: 4}),
           ];
           //p = [
@@ -150,6 +174,10 @@ angular.module('packer', ['ngMaterial'])
         }
 
         return p;
+      };
+
+      $scope.pack = function () {
+        $scope.packs.push(pack());
       };
 
       card = function card(chances) {
@@ -190,7 +218,14 @@ angular.module('packer', ['ngMaterial'])
         $scope.stats.cards++;
         $scope.stats.norm[c.rarity]++;
         if (c.gold) $scope.stats.gold[c.rarity]++;
-        $scope.stats.collection[c.detail.playerClass || 'NEUTRAL'][c.detail.name][c.gold ? 'gold' : 'norm']++;
+        var isGold = c.gold ? 'gold' : 'norm';
+        var cnt = ++$scope.stats.collection[c.detail.playerClass || 'NEUTRAL'][c.detail.name][isGold];
+        $scope.stats.dust[isGold].all += disenchant[isGold][c.rarity];
+        var max = c.rarity === 'lgnd' ? 1 : 2;
+        if (cnt > max) {
+          $scope.stats.dust[isGold].extra += disenchant[isGold][c.rarity];
+          c.extra = true;
+        }
 
         return c;
       };
@@ -224,11 +259,27 @@ angular.module('packer', ['ngMaterial'])
   .directive('card', function () {
 
     return {
-      template: "<div class='card' ng-class='[card.rarity, {gold: card.gold}]'>" +
-      "{{card.gold ? ' G' : '    '}}{{card.rarity[0] | uppercase}} {{card.detail.name}}" +
+      template: "<div ng-if='type' ng-class='card.rarity'>" +
+      "  {{card.detail.name}} x{{card.norm}} <strong>x{{card.gold}}</strong>" +
+      "</div>" +
+      "<div ng-if='!type' class='card' ng-class='[card.rarity, {gold: card.gold, extra: card.extra}]'>" +
+      "  {{card.gold ? ' G' : '    '}}{{card.rarity[0] | uppercase}} {{card.detail.name}}" +
       "</div>",
       link: function (scope, element, attrs) {
-
+        scope.type = angular.isNumber(scope.card.norm) && angular.isNumber(scope.card.gold);
       }
+    };
+  })
+  .directive('ngEnter', function () {
+    return function (scope, element, attrs) {
+      element.bind("keydown keypress", function (event) {
+        if (event.which === 13) {
+          scope.$apply(function () {
+            scope.$eval(attrs.ngEnter);
+          });
+
+          event.preventDefault();
+        }
+      });
     };
   });

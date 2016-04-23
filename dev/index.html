@@ -24,17 +24,21 @@
 </header>
 <main layout="row">
   <md-content layout="column" flex-offset="10" flex="80">
-    <div ng-repeat="pack in packs" layout="row">
-      <span flex="5">{{$index+1}}</span>
-
-      <div flex="95" layout="row">
-        <card data="card" ng-repeat="card in pack" flex="20"></card>
-      </div>
+    <div layout="row" layout-align="start center">
+      <md-input-container class="inline-input">
+        <label>Number of packs</label>
+        <input type="number" ng-model="noPacks" placeholder="50" min="1" max="9999" ng-enter="open()">
+      </md-input-container>
+      <md-radio-group ng-model="set" layout="row">
+        <md-radio-button value="WOG" class="md-primary">WOG</md-radio-button>
+        <md-radio-button value="TGT" class="md-primary" disabled="disabled">
+          TGT
+          <md-tooltip>will be implemented as soon as WOE is released</md-tooltip>
+        </md-radio-button>
+      </md-radio-group>
+      <md-button class="md-raised" ng-click="open()" ng-disabled="!noPacks">OPEN</md-button>
     </div>
-    <br/>
-
     <h2>stats</h2>
-
     <div layout="column">
       <table>
         <tbody>
@@ -64,20 +68,50 @@
           <td>{{stats.gold.lgnd}}</td>
         </tr>
         <tr>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td><br/></td>
+        </tr>
+        <tr>
+          <td>Dust value (extra)</td>
+          <td>{{stats.dust.norm.all}} ({{stats.dust.norm.extra}}) +</td>
+          <td>{{stats.dust.gold.all}} ({{stats.dust.gold.extra}})</td>
+          <td> = {{stats.dust.norm.all + stats.dust.gold.all}} ({{stats.dust.norm.extra + stats.dust.gold.extra}})</td>
         </tr>
         </tbody>
       </table>
     </div>
     <br/>
 
-    <h2>collection</h2>
+    <div layout-align="start center" layout="row">
+      <h2>packs</h2>
+      <span flex="5"></span>
+      <md-button ng-click="pack()" class="md-raised">JUST ONE MORE PLS</md-button>
+    </div>
+    <div ng-repeat="pack in packs" layout="row">
+      <span flex="5">{{$index+1}}</span>
 
-    <div>
+      <div flex="95" layout="row">
+        <card data="card" ng-repeat="card in pack" flex="20"></card>
+      </div>
 
     </div>
+    <br/>
+
+    <h2>collection</h2>
+
+    <div layout="column">
+      <div ng-repeat="(name, cnt) in stats.collection">
+        <h3>{{name}}</h3>
+
+        <div layout="row" layout-wrap>
+          <span ng-repeat="(cname, card) in cnt" flex="25">
+            <card data="card"></card>
+          </span>
+        </div>
+        <br/>
+      </div>
+
+    </div>
+    <br/>
   </md-content>
 </main>
 <footer>

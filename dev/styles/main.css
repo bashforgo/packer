@@ -26,27 +26,37 @@
     text-decoration: none;
 }
 
-.card {
+.inline-input {
+    margin: 0;
+    top: 18px;
+    padding: 0 10px;
+}
+
+card {
     white-space: pre;
     overflow: hidden;
 }
 
-.card.gold {
+card .gold {
     font-weight: bold;
 }
 
-.card.comm {
+card .extra {
+    color: gray;
+}
+
+card .comm {
     background-color: #E6E6E6;
 }
 
-.card.rare {
+card .rare {
     background-color: #A9D0F5;
 }
 
-.card.epic {
+card .epic {
     background-color: #BCA9F5;
 }
 
-.card.lgnd {
+card .lgnd {
     background-color: #F7BE81;
 }
