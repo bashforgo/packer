@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('packer', ['ngMaterial'])
-  .controller('packerCtrl', ['$scope', '$http', 'BiasedRandomList', function ($scope, $http, RandomList) {
+  .controller('packerCtrl', ['$scope', '$http', '$timeout', 'BiasedRandomList', function ($scope, $http, $timeout, RandomList) {
 
     var rand = new MersenneTwister();
     var goldDrops = {comm: 2.0637, rare: 5.5395, epic: 4.5173, lgnd: 7.3107};
@@ -22,8 +22,9 @@ angular.module('packer', ['ngMaterial'])
     var cs = {name: '', rarity: '', set: '', playerClass: ''};
     var cards = {};
     $scope.set = 'WOG';
-    $scope.noPacks = 13;
+    $scope.noPacks = 63;
     $scope.open = function () {
+      if ($scope.working) return;
       packGen();
       run($scope, $scope.noPacks);
       ga('send', {
@@ -67,9 +68,17 @@ angular.module('packer', ['ngMaterial'])
         {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
         {"rarity": "lgnd", "gold": false, "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG"}},
       ]];
-      for (var i = 0; i < n; i++) {
+      var push = function () {
         scope.packs.push(pack());
+      };
+      scope.working = true;
+      var tos = [];
+      for (var i = 0; i < n; i++) {
+        tos.push($timeout(push, 0, true));
       }
+      Promise.all(tos).then(function () {
+        if (scope.$apply) scope.$apply('working = false');
+      });
     }
 
     var card;
@@ -167,12 +176,13 @@ angular.module('packer', ['ngMaterial'])
           card({comm: 99.99, rare: 0.01, epic: 0, lgnd: 0}),
           card({comm: 99.8, rare: 0.19, epic: 0.01, lgnd: 0}),
           card({comm: 96, rare: 3.95, epic: 0.05, lgnd: 0}),
-          card({comm: 70, rare: 28, epic: 1.98, lgnd: 0.02}),
-          card({comm: 0, rare: 80, epic: 16, lgnd: 4}),
+          card({comm: 70.9, rare: 28, epic: 1.9, lgnd: 0.02}),
+          card({comm: 0, rare: 80.6, epic: 15.2, lgnd: 4.2}),
         ];
       };
 
       $scope.pack = function () {
+        if ($scope.working) return;
         $scope.packs.push(pack());
       };
 
