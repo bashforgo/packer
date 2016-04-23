@@ -24,7 +24,7 @@ gulp.task('html', function () {
         .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulpif('*.html', htmlmin({collapseWhitespace: true})))
-        .pipe(gulp.dest('./'));
+      .pipe(gulp.dest('./dist/'));
 });
 
 gulp.task('reload', function () {
