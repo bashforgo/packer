@@ -33,7 +33,7 @@ angular.module('packer', ['ngMaterial'])
         cards = {};
         cards.data = data.data;
         filterCards();
-        packGen();
+        //packGen();
         //var s = {};
         //run(s, 25000);
         //console.log(($scope.stats.norm.comm / $scope.stats.cards).toFixed(8)*100);
@@ -42,6 +42,7 @@ angular.module('packer', ['ngMaterial'])
         //console.log(($scope.stats.norm.lgnd / $scope.stats.cards).toFixed(8)*100);
         packGen();
         run($scope, $scope.noPacks);
+        $scope.done = true;
       });
 
     function run(scope, n) {

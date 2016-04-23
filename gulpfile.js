@@ -10,8 +10,20 @@ var gulp = require('gulp'),
     opn = require('opn'),
     htmlmin = require('gulp-htmlmin');
 
+var ghPages = require('gulp-gh-pages');
 
-gulp.task('html', function () {
+gulp.task('deploy', ['build'], function () {
+  return gulp.src('./dist/**/*')
+    .pipe(ghPages());
+});
+
+
+gulp.task('copy', function () {
+  return gulp.src('dev/json/*', {base: './dist/'})
+    .pipe(gulp.dest('./dist/'));
+});
+
+gulp.task('build', ['copy'], function () {
     var assets = useref.assets();
 
     return gulp.src('dev/*.html')
@@ -46,4 +58,4 @@ gulp.task('watch', function () {
 });
 
 gulp.task('serve', ['connect', 'watch']);
-gulp.task('default', ['html']);
+gulp.task('default', ['build']);

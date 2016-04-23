@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
   <!-- endbuild -->
 </head>
-<body ng-app="packer" ng-controller="packerCtrl" ng-cloak>
+<body ng-app="packer" ng-controller="packerCtrl">
 
 <header>
   <md-toolbar class="md-primary">
@@ -22,7 +22,7 @@
   </md-toolbar>
   <br/>
 </header>
-<main layout="row">
+<main layout="row" ng-cloak>
   <md-content layout="column" flex-offset="10" flex="80">
     <div layout="row" layout-align="start center">
       <md-input-container class="inline-input">
@@ -33,6 +33,10 @@
         <md-radio-button value="WOG" class="md-primary">WOG</md-radio-button>
         <md-radio-button value="TGT" class="md-primary" disabled="disabled">
           TGT
+          <md-tooltip>will be implemented as soon as WOE is released</md-tooltip>
+        </md-radio-button>
+        <md-radio-button value="CLASSIC" class="md-primary" disabled="disabled">
+          CLASSIC
           <md-tooltip>will be implemented as soon as WOE is released</md-tooltip>
         </md-radio-button>
       </md-radio-group>
