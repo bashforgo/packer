@@ -42,13 +42,19 @@ angular.module('packer', ['ngMaterial'])
         filterCards();
         //packGen();
         //var s = {};
-        //run(s, 25000);
-        //console.log(($scope.stats.norm.comm / $scope.stats.cards).toFixed(8)*100);
-        //console.log(($scope.stats.norm.rare / $scope.stats.cards).toFixed(8)*100);
-        //console.log(($scope.stats.norm.epic / $scope.stats.cards).toFixed(8)*100);
-        //console.log(($scope.stats.norm.lgnd / $scope.stats.cards).toFixed(8)*100);
+        //run(s, 25000)
+        //  .then(function () {
+        //    console.log((($scope.stats.norm.comm / $scope.stats.cards).toFixed(8) * 100) - 71.8393);
+        //    console.log((($scope.stats.norm.rare / $scope.stats.cards).toFixed(8) * 100) - 22.8684);
+        //    console.log((($scope.stats.norm.epic / $scope.stats.cards).toFixed(8) * 100) - 4.2782);
+        //    console.log((($scope.stats.norm.lgnd / $scope.stats.cards).toFixed(8) * 100) - 1.0140);
+        //    console.log((($scope.stats.norm.comm / $scope.stats.cards).toFixed(8) * 100));
+        //    console.log((($scope.stats.norm.rare / $scope.stats.cards).toFixed(8) * 100));
+        //    console.log((($scope.stats.norm.epic / $scope.stats.cards).toFixed(8) * 100));
+        //    console.log((($scope.stats.norm.lgnd / $scope.stats.cards).toFixed(8) * 100));
         packGen();
         run($scope, $scope.noPacks);
+        //});
         $scope.done = true;
         if (window.performance) {
           var timeSincePageLoad = Math.round(performance.now());
@@ -75,8 +81,9 @@ angular.module('packer', ['ngMaterial'])
       var tos = [];
       for (var i = 0; i < n; i++) {
         tos.push($timeout(push, 0, true));
+        //tos.push(Promise.resolve(push()));
       }
-      Promise.all(tos).then(function () {
+      return Promise.all(tos).then(function () {
         if (scope.$apply) scope.$apply('working = false');
       });
     }
@@ -172,13 +179,21 @@ angular.module('packer', ['ngMaterial'])
           }
         }
 
-        return [
-          card({comm: 99.99, rare: 0.01, epic: 0, lgnd: 0}),
-          card({comm: 99.8, rare: 0.19, epic: 0.01, lgnd: 0}),
-          card({comm: 96, rare: 3.95, epic: 0.05, lgnd: 0}),
-          card({comm: 70.9, rare: 28, epic: 1.9, lgnd: 0.02}),
-          card({comm: 0, rare: 80.6, epic: 15.2, lgnd: 4.2}),
-        ];
+        var lgnd = function () {
+          return 1 / (41 - norm.lgnd);
+        };
+        var epic = function () {
+          return 0.02 + (1 / (11 - norm.epic));
+        };
+        var p = [];
+
+        for (var i = 0; i < 4; i++) {
+          p.push(card({comm: 11.5, rare: 1, epic: epic(), lgnd: lgnd()}));
+        }
+        var rare = lgnd() + epic() > 1.3 ? 0 : 1.3 - (lgnd() + epic());
+
+        p.push(card({comm: 0, rare: rare, epic: epic(), lgnd: lgnd()}));
+        return p;
       };
 
       $scope.pack = function () {
@@ -196,10 +211,6 @@ angular.module('packer', ['ngMaterial'])
             return ['epic', true];
           } else if (gold.lgnd >= 310) {
             return ['lgnd', true];
-          } else if (norm.epic >= 10) {
-            return ['epic', false];
-          } else if (norm.lgnd >= 40) {
-            return ['lgnd', false];
           } else {
             var list = new RandomList([], function (i) {
               return i.weight;
