@@ -21,8 +21,37 @@ angular.module('packer', ['ngMaterial'])
     };
     var cs = {name: '', rarity: '', set: '', playerClass: ''};
     var cards = {};
+
+
     $scope.set = 'WOG';
     $scope.noPacks = 63;
+    $scope.packsShow = {
+      comm: true,
+      rare: true,
+      epic: true,
+      lgnd: true,
+
+    };
+    $scope.packsShow.check = function (pack) {
+      return pack.map(function (v) {
+        return $scope.packsShow[v.rarity];
+      }).reduce(function (p, c) {
+        return p || c;
+      });
+    };
+    Object.defineProperty($scope.packsShow, 'all', {
+      get: function () {
+        return $scope.packsShow.comm && $scope.packsShow.rare &&
+          $scope.packsShow.epic && $scope.packsShow.lgnd;
+      },
+      set: function (v) {
+        $scope.packsShow.comm = v;
+        $scope.packsShow.rare = v;
+        $scope.packsShow.epic = v;
+        $scope.packsShow.lgnd = v;
+      }
+    });
+
     $scope.open = function () {
       if ($scope.working) return;
       packGen();
