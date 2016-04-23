@@ -183,17 +183,17 @@ angular.module('packer', ['ngMaterial'])
 
       card = function card(chances) {
         var rarity = (function () {
-          if (chances.comm > 0 && gold.comm > 25) {
+          if (chances.comm > 0 && gold.comm >= 25) {
             return ['comm', true];
-          } else if (gold.rare > 30) {
+          } else if (gold.rare >= 30) {
             return ['rare', true];
-          } else if (gold.epic > 137) {
+          } else if (gold.epic >= 137) {
             return ['epic', true];
-          } else if (gold.lgnd > 310) {
+          } else if (gold.lgnd >= 310) {
             return ['lgnd', true];
-          } else if (norm.epic > 10) {
+          } else if (norm.epic >= 10) {
             return ['epic', false];
-          } else if (norm.lgnd > 40) {
+          } else if (norm.lgnd >= 40) {
             return ['lgnd', false];
           } else {
             var list = new RandomList([], function (i) {
@@ -264,7 +264,7 @@ angular.module('packer', ['ngMaterial'])
       "  {{card.detail.name}} x{{card.norm}} <strong>x{{card.gold}}</strong>" +
       "</div>" +
       "<div ng-if='!type' class='card' ng-class='[card.rarity, {gold: card.gold, extra: card.extra}]'>" +
-      "  {{card.gold ? ' G' : '    '}}{{card.rarity[0] | uppercase}} {{card.detail.name}}" +
+      " {{card.detail.name}}" +
       "</div>",
       link: function (scope, element, attrs) {
         scope.type = angular.isNumber(scope.card.norm) && angular.isNumber(scope.card.gold);
