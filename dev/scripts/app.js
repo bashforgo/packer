@@ -26,6 +26,12 @@ angular.module('packer', ['ngMaterial'])
     $scope.open = function () {
       packGen();
       run($scope, $scope.noPacks);
+      ga('send', {
+        hitType: 'event',
+        eventCategory: 'packs',
+        eventAction: 'reopen',
+        eventValue: $scope.noPacks,
+      });
     };
 
     $http.get('json/cards.json')
@@ -43,11 +49,24 @@ angular.module('packer', ['ngMaterial'])
         packGen();
         run($scope, $scope.noPacks);
         $scope.done = true;
+        if (window.performance) {
+          var timeSincePageLoad = Math.round(performance.now());
+          ga('send', 'timing', 'JSON', 'load', timeSincePageLoad);
+        }
+        ga('send', {
+          hitType: 'event',
+          eventCategory: 'packs',
+          eventAction: 'initial'
+        });
       });
 
     function run(scope, n) {
       n = n || 50;
-      scope.packs = [];
+      scope.packs = [[
+        {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
+        {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
+        {"rarity": "lgnd", "gold": false, "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG"}},
+      ]];
       for (var i = 0; i < n; i++) {
         scope.packs.push(pack());
       }
@@ -70,12 +89,12 @@ angular.module('packer', ['ngMaterial'])
         lgnd: 0,
       };
       $scope.stats = {
-        cards: 3,
+        cards: 0,
         norm: {
-          comm: 2,
+          comm: 0,
           rare: 0,
           epic: 0,
-          lgnd: 1,
+          lgnd: 0,
         },
         gold: {
           comm: 0,
@@ -85,7 +104,7 @@ angular.module('packer', ['ngMaterial'])
         },
         dust: {
           norm: {
-            all: 410,
+            all: 0,
             extra: 0,
           },
           gold: {
@@ -143,38 +162,14 @@ angular.module('packer', ['ngMaterial'])
             gold[rarity]++;
           }
         }
-        var p;
 
-        if (first) {
-          p = [
-            {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
-            {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
-            //card({comm: 94.7316, rare: 5.1890, epic: 0.0794, lgnd: 0.0000}),
-            //card({comm: 64.8421, rare: 33.1326, epic: 1.9856, lgnd: 0.0397}),
-            card({comm: 95, rare: 4.95, epic: 0.05, lgnd: 0}),
-            card({comm: 65, rare: 33, epic: 1.97, lgnd: 0.03}),
-            {"rarity": "lgnd", "gold": false, "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG"}},
-          ];
-
-          first = false;
-        } else {
-          p = [
-            card({comm: 99.99, rare: 0.01, epic: 0, lgnd: 0}),
-            card({comm: 99.8, rare: 0.19, epic: 0.01, lgnd: 0}),
-            card({comm: 96, rare: 3.95, epic: 0.05, lgnd: 0}),
-            card({comm: 70, rare: 28, epic: 1.98, lgnd: 0.02}),
-            card({comm: 0, rare: 80, epic: 16, lgnd: 4}),
-          ];
-          //p = [
-          //  card({comm: 99.9801, rare: 0.0199, epic: 0.0000, lgnd: 0.0000}),
-          //  card({comm: 99.6426, rare: 0.3442, epic: 0.0132, lgnd: 0.0000}),
-          //  card({comm: 94.7316, rare: 5.1890, epic: 0.0794, lgnd: 0.0000}),
-          //  card({comm: 64.8421, rare: 33.1326, epic: 1.9856, lgnd: 0.0397}),
-          //  card({comm: 0.0000, rare: 75.6569, epic: 19.3130, lgnd: 5.0301}),
-          //];
-        }
-
-        return p;
+        return [
+          card({comm: 99.99, rare: 0.01, epic: 0, lgnd: 0}),
+          card({comm: 99.8, rare: 0.19, epic: 0.01, lgnd: 0}),
+          card({comm: 96, rare: 3.95, epic: 0.05, lgnd: 0}),
+          card({comm: 70, rare: 28, epic: 1.98, lgnd: 0.02}),
+          card({comm: 0, rare: 80, epic: 16, lgnd: 4}),
+        ];
       };
 
       $scope.pack = function () {
