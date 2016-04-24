@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('packer', ['ngMaterial'])
+angular.module('packer', ['ngMaterial', 'sticky'])
   .controller('packerCtrl', ['$scope', '$http', '$timeout', 'BiasedRandomList', function ($scope, $http, $timeout, RandomList) {
 
     var rand = new MersenneTwister();
@@ -25,16 +25,24 @@ angular.module('packer', ['ngMaterial'])
 
     $scope.set = 'WOG';
     $scope.noPacks = 63;
+    $scope.packsFabOpen = false;
     $scope.packsShow = {
       comm: true,
       rare: true,
       epic: true,
       lgnd: true,
-
+      gold: false,
     };
-    $scope.packsShow.check = function (pack) {
+    $scope.packsShow.checkC = function (card) {
+      if ($scope.packsShow.gold) {
+        return card.gold && $scope.packsShow[card.rarity];
+      } else {
+        return $scope.packsShow[card.rarity];
+      }
+    };
+    $scope.packsShow.checkP = function (pack) {
       return pack.map(function (v) {
-        return $scope.packsShow[v.rarity];
+        return $scope.packsShow.checkC(v);
       }).reduce(function (p, c) {
         return p || c;
       });
@@ -42,13 +50,50 @@ angular.module('packer', ['ngMaterial'])
     Object.defineProperty($scope.packsShow, 'all', {
       get: function () {
         return $scope.packsShow.comm && $scope.packsShow.rare &&
-          $scope.packsShow.epic && $scope.packsShow.lgnd;
+          $scope.packsShow.epic && $scope.packsShow.lgnd && !$scope.packsShow.gold;
       },
       set: function (v) {
         $scope.packsShow.comm = v;
         $scope.packsShow.rare = v;
         $scope.packsShow.epic = v;
         $scope.packsShow.lgnd = v;
+        $scope.packsShow.gold = false;
+      }
+    });
+
+    $scope.collShow = {
+      comm: true,
+      rare: true,
+      epic: true,
+      lgnd: true,
+      gold: false,
+      type: 'all',
+    };
+    $scope.collShow.checkC = function (card) {
+      if ($scope.collShow.gold) {
+        return card.gold && $scope.collShow[card.rarity];
+      } else {
+        return $scope.collShow[card.rarity];
+      }
+    };
+    $scope.collShow.checkP = function (pack) {
+      return pack.map(function (v) {
+        return $scope.collShow.checkC(v);
+      }).reduce(function (p, c) {
+        return p || c;
+      });
+    };
+    Object.defineProperty($scope.collShow, 'all', {
+      get: function () {
+        return $scope.collShow.comm && $scope.collShow.rare &&
+          $scope.collShow.epic && $scope.collShow.lgnd;
+      },
+      set: function (v) {
+        $scope.collShow.comm = v;
+        $scope.collShow.rare = v;
+        $scope.collShow.epic = v;
+        $scope.collShow.lgnd = v;
+        $scope.collShow.gold = false;
       }
     });
 

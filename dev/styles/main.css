@@ -60,3 +60,7 @@ card .epic {
 card .lgnd {
     background-color: #F7BE81;
 }
+
+[sticky] {
+    background-color: white;
+}
