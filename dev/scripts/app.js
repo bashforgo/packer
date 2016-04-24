@@ -19,6 +19,20 @@ angular.module('packer', ['ngMaterial', 'sticky'])
         lgnd: 1600,
       }
     };
+    var craft = {
+      norm: {
+        comm: 40,
+        rare: 100,
+        epic: 400,
+        lgnd: 1600,
+      },
+      gold: {
+        comm: 400,
+        rare: 800,
+        epic: 1600,
+        lgnd: 3200,
+      }
+    };
     var cs = {name: '', rarity: '', set: '', playerClass: ''};
     var cards = {};
 
@@ -66,8 +80,6 @@ angular.module('packer', ['ngMaterial', 'sticky'])
       rare: true,
       epic: true,
       lgnd: true,
-      gold: false,
-      type: 'all',
     };
     $scope.collShow.checkC = function (card) {
       if ($scope.collShow.gold) {
@@ -93,9 +105,71 @@ angular.module('packer', ['ngMaterial', 'sticky'])
         $scope.collShow.rare = v;
         $scope.collShow.epic = v;
         $scope.collShow.lgnd = v;
-        $scope.collShow.gold = false;
       }
     });
+
+    function counter(group, cards) {
+      var count = {
+        number: 0,
+        value: 0,
+        extra: 0,
+        missing: 0,
+      };
+      for (var name in cards) {
+        if (cards.hasOwnProperty(name) && $scope.collShow.checkC(cards[name])) {
+          var card = cards[name];
+          var max = card.rarity === 'lgnd' ? 1 : 2;
+          var nonduplicates = card[group] > max ? max : card[group];
+          var duplicates = card[group] - max < 0 ? 0 : card[group] - max;
+          count.number += nonduplicates;
+          count.value += card[group] * disenchant[group][card.rarity];
+          count.extra += duplicates * disenchant[group][card.rarity];
+          count.missing += (max - nonduplicates) * craft[group][card.rarity];
+        }
+      }
+      return count;
+    }
+
+    $scope.count = {
+      owned: {
+        norm: function (cnt) {
+          var res = counter('norm', cnt);
+          return 'owned: ' + res.number + ' dust value: ' + res.value +
+            ' dust value from duplicates: ' + res.extra + ' craft missing: ' + res.missing;
+        },
+        gold: function (cnt) {
+          var res = counter('gold', cnt);
+          return 'golden owned: ' + res.number + ' dust value: ' + res.value +
+            ' dust value from duplicates: ' + res.extra + ' craft missing: ' + res.missing;
+        }
+      },
+      all: function (cnt) {
+        var count = 0;
+        for (var name in cnt) {
+          if (cnt.hasOwnProperty(name) && $scope.collShow.checkC(cnt[name])) {
+            count += cnt[name].rarity === 'lgnd' ? 1 : 2;
+          }
+        }
+        return count;
+      },
+    };
+
+    $scope.summary = function () {
+      var list = {};
+      if ($scope.stats) {
+        for (var hero in $scope.stats.collection) {
+          if ($scope.stats.collection.hasOwnProperty(hero)) {
+            for (var name in $scope.stats.collection[hero]) {
+              if ($scope.stats.collection[hero].hasOwnProperty(name) &&
+                $scope.collShow.checkC($scope.stats.collection[hero][name])) {
+                list[name] = $scope.stats.collection[hero][name];
+              }
+            }
+          }
+        }
+      }
+      return list;
+    };
 
     $scope.open = function () {
       if ($scope.working) return;

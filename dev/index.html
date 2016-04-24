@@ -8,9 +8,9 @@
   <!-- build:css styles/styles.css -->
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="bower_components/angular-material/angular-material.min.css">
+  <!-- endbuild -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <!-- endbuild -->
 </head>
 <body ng-app="packer" ng-controller="packerCtrl">
 
@@ -138,36 +138,12 @@
             <md-icon md-font-icon="material-icons">settings</md-icon>
           </md-button>
           <md-menu-content width="4" layout-padding>
-            <md-switch ng-model="collShow.all" aria-label="all">all</md-switch>
-            <md-switch ng-model="collShow.comm" aria-label="common">common</md-switch>
-            <md-switch ng-model="collShow.rare" aria-label="rare">rare</md-switch>
-            <md-switch ng-model="collShow.epic" aria-label="epic">epic</md-switch>
-            <md-switch ng-model="collShow.lgnd" aria-label="legendary">legendary</md-switch>
-            <md-switch ng-model="collShow.gold" aria-label="gold" class="md-primary">only golden</md-switch>
             <div layout-margin>
-              <md-radio-group ng-model="collShow.type" layout="row">
-                <md-radio-button value="all" class="md-primary">
-                  all
-                  <md-tooltip>all cards, whether you have it or not</md-tooltip>
-                </md-radio-button>
-                <md-radio-button value="missing" class="md-primary">
-                  0
-                  <md-tooltip>cards that you don't have any of</md-tooltip>
-                </md-radio-button>
-                <md-radio-button value="any" class="md-primary">
-                  1+
-                  <md-tooltip>show cards that you have at least 1 copy of</md-tooltip>
-                </md-radio-button>
-                <md-radio-button value="min" class="md-primary">
-                  2+
-                  <md-tooltip>show cards that you have at least 2 of for non-legendaries and 1 of for legendaries
-                  </md-tooltip>
-                </md-radio-button>
-                <md-radio-button value="full" class="md-primary">
-                  full
-                  <md-tooltip>show cards that you have both of</md-tooltip>
-                </md-radio-button>
-              </md-radio-group>
+              <md-switch ng-model="collShow.all" aria-label="all">all</md-switch>
+              <md-switch ng-model="collShow.comm" aria-label="common">common</md-switch>
+              <md-switch ng-model="collShow.rare" aria-label="rare">rare</md-switch>
+              <md-switch ng-model="collShow.epic" aria-label="epic">epic</md-switch>
+              <md-switch ng-model="collShow.lgnd" aria-label="legendary">legendary</md-switch>
             </div>
           </md-menu-content>
         </md-menu>
@@ -176,6 +152,11 @@
       <div layout="column">
         <div ng-repeat="(name, cnt) in stats.collection">
           <h3>{{name}}</h3>
+          <p>
+            {{count.owned.norm(cnt)}} <br/>
+            {{count.owned.gold(cnt)}} <br/>
+            maximum: {{count.all(cnt)}}
+          </p>
 
           <div layout="row" layout-wrap>
           <span ng-repeat="(cname, card) in cnt" ng-if="collShow.checkC(card)"
@@ -183,6 +164,15 @@
             <card data="card"></card>
           </span>
           </div>
+          <br/>
+        </div>
+        <div>
+          <h3>SUMMARY</h3>
+          <p>
+            {{count.owned.norm(summary())}} <br/>
+            {{count.owned.gold(summary())}} <br/>
+            maximum: {{count.all(summary())}}
+          </p>
           <br/>
         </div>
 
