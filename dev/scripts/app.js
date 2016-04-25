@@ -421,7 +421,47 @@ angular.module('packer', ['ngMaterial', 'sticky'])
     }
 
   }])
-  .directive('card', function () {
+  .directive('card', ['$document', function ($document) {
+    function getAbsoluteBoundingRect (el) {
+      var doc  = document,
+        win  = window,
+        body = doc.body,
+
+      // pageXOffset and pageYOffset work everywhere except IE <9.
+        offsetX = win.pageXOffset !== undefined ? win.pageXOffset :
+          (doc.documentElement || body.parentNode || body).scrollLeft,
+        offsetY = win.pageYOffset !== undefined ? win.pageYOffset :
+          (doc.documentElement || body.parentNode || body).scrollTop,
+
+        rect = el.getBoundingClientRect();
+
+      if (el !== body) {
+        var parent = el.parentNode;
+
+        // The element's rect will be affected by the scroll positions of
+        // *all* of its scrollable parents, not just the window, so we have
+        // to walk up the tree and collect every scroll offset. Good times.
+        while (parent !== body) {
+          offsetX += parent.scrollLeft;
+          offsetY += parent.scrollTop;
+          parent   = parent.parentNode;
+        }
+      }
+
+      return {
+        bottom: rect.bottom + offsetY,
+        height: rect.height,
+        left  : rect.left + offsetX,
+        right : rect.right + offsetX,
+        top   : rect.top + offsetY,
+        width : rect.width
+      };
+    }
+
+    var preview = new Image();
+    preview.style.position = 'absolute';
+    preview.style.display = 'none';
+    $document[0].body.appendChild(preview);
 
     return {
       template: "<div ng-if='type' ng-class='card.rarity'>" +
@@ -432,9 +472,22 @@ angular.module('packer', ['ngMaterial', 'sticky'])
       "</div>",
       link: function (scope, element, attrs) {
         scope.type = angular.isNumber(scope.card.norm) && angular.isNumber(scope.card.gold);
+        element.on('mouseleave', function () {
+          preview.style.display = 'none';
+        });
+        element.on('mouseenter', function () {
+          var rect = getAbsoluteBoundingRect(element[0]);
+          preview.src = '//wow.zamimg.com/images/hearthstone/cards/enus/medium/GVG_082.png';
+          var scale = rect.width / 200;
+          preview.style.width = (scale * 200) + 'px';
+          preview.style.height = (scale * 303) + 'px';
+          preview.style.top = (rect.bottom) + 'px';
+          preview.style.left = rect.left + 'px';
+          preview.style.display = 'block';
+        });
       }
     };
-  })
+  }])
   .directive('ngEnter', function () {
     return function (scope, element, attrs) {
       element.bind("keydown keypress", function (event) {
