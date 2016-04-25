@@ -38,6 +38,7 @@ angular.module('packer', ['ngMaterial', 'sticky'])
 
 
     $scope.set = 'OG';
+    $scope.lastSet = $scope.set;
     $scope.noPacks = 63;
     $scope.packsFabOpen = false;
     $scope.packsShow = {
@@ -173,12 +174,16 @@ angular.module('packer', ['ngMaterial', 'sticky'])
 
     $scope.open = function () {
       if ($scope.working) return;
+      if ($scope.set !== $scope.lastSet) {
+        filterCards();
+        $scope.lastSet = $scope.set;
+      }
       packGen();
       run($scope, $scope.noPacks);
       ga('send', {
         hitType: 'event',
         eventCategory: 'packs',
-        eventAction: 'reopen',
+        eventAction: 'reopen-' + $scope.set,
         eventValue: $scope.noPacks,
       });
     };
@@ -214,17 +219,18 @@ angular.module('packer', ['ngMaterial', 'sticky'])
         ga('send', {
           hitType: 'event',
           eventCategory: 'packs',
-          eventAction: 'initial'
+          eventAction: 'initial-' + $scope.set,
+          eventValue: $scope.noPacks
         });
       });
 
     function run(scope, n) {
       n = n || 50;
-      scope.packs = [[
+      scope.packs =  scope.set === 'OG' ? [[
         {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG", id: "OG_281"}},
         {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG", id: "OG_281"}},
         {"rarity": "lgnd", "gold": false, "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG", id: "OG_280"}},
-      ]];
+      ]] : [];
       var push = function () {
         scope.packs.push(pack());
       };
@@ -289,7 +295,7 @@ angular.module('packer', ['ngMaterial', 'sticky'])
           SHAMAN: {},
           WARLOCK: {},
           WARRIOR: {},
-          NEUTRAL: {
+          NEUTRAL: $scope.set === 'OG' ? {
             'Beckoner of Evil': {
               norm: 2,
               gold: 0,
@@ -302,7 +308,7 @@ angular.module('packer', ['ngMaterial', 'sticky'])
               rarity: 'lgnd',
               "detail": {"name": "C'Thun", "rarity": "LEGENDARY", "set": "WOG", id: "OG_280", cost: 10}
             }
-          },
+          } : {},
         },
       };
       var first = true;

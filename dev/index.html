@@ -108,7 +108,7 @@
       </div>
       <div ng-repeat="pack in packs" ng-if="!working">
         <div layout="row" ng-if="packsShow.checkP(pack)">
-          <span flex="5">{{$index}}</span>
+          <span flex="5">{{$index + (lastSet === 'OG' ? 0 : 1)}}</span>
 
           <div flex="95" layout="row" layout-wrap>
             <card data="::card" ng-repeat="card in ::pack" ng-if="packsShow.checkC(card)"
