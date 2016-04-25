@@ -19,8 +19,8 @@ gulp.task('deploy', ['build'], function () {
 
 
 gulp.task('copy', function () {
-  return gulp.src('dev/json/*', {base: './dist/'})
-    .pipe(gulp.dest('./dist/'));
+  return gulp.src('dev/icons/*', {base: 'dev'})
+    .pipe(gulp.dest('dist/'));
 });
 
 gulp.task('build', ['copy'], function () {
