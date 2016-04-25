@@ -33,11 +33,11 @@ angular.module('packer', ['ngMaterial', 'sticky'])
         lgnd: 3200,
       }
     };
-    var cs = {name: '', rarity: '', set: '', playerClass: ''};
+    var cs = {name: '', rarity: '', set: '', playerClass: '', cost: 0};
     var cards = {};
 
 
-    $scope.set = 'WOG';
+    $scope.set = 'OG';
     $scope.noPacks = 63;
     $scope.packsFabOpen = false;
     $scope.packsShow = {
@@ -183,10 +183,13 @@ angular.module('packer', ['ngMaterial', 'sticky'])
       });
     };
 
-    $http.get('json/cards.json')
+    $http.get('https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json')
       .then(function (data) {
         cards = {};
-        cards.data = data.data;
+        cards.data = data.data.filter(function (c) {
+          return c.set === 'EXPERT1' || c.set === 'TGT' ||
+            (c.set === 'OG' && (c.name !== "C'Thun" && c.name !== 'Beckoner of Evil'));
+        });
         filterCards();
         //packGen();
         //var s = {};
@@ -218,9 +221,9 @@ angular.module('packer', ['ngMaterial', 'sticky'])
     function run(scope, n) {
       n = n || 50;
       scope.packs = [[
-        {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
-        {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}},
-        {"rarity": "lgnd", "gold": false, "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG"}},
+        {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG", id: "OG_281"}},
+        {"rarity": "comm", "gold": false, "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG", id: "OG_281"}},
+        {"rarity": "lgnd", "gold": false, "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG", id: "OG_280"}},
       ]];
       var push = function () {
         scope.packs.push(pack());
@@ -291,13 +294,13 @@ angular.module('packer', ['ngMaterial', 'sticky'])
               norm: 2,
               gold: 0,
               rarity: 'comm',
-              "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG"}
+              "detail": {"name": "Beckoner of Evil", "rarity": "COMMON", "set": "WOG", id: "OG_281", cost: 2}
             },
-            'C\'thun': {
+            "C'Thun": {
               norm: 1,
               gold: 0,
               rarity: 'lgnd',
-              "detail": {"name": "C'thun", "rarity": "LEGENDARY", "set": "WOG"}
+              "detail": {"name": "C'Thun", "rarity": "LEGENDARY", "set": "WOG", id: "OG_280", cost: 10}
             }
           },
         },
@@ -423,8 +426,8 @@ angular.module('packer', ['ngMaterial', 'sticky'])
   }])
   .directive('card', ['$document', function ($document) {
     function getAbsoluteBoundingRect (el) {
-      var doc  = document,
-        win  = window,
+      var doc = document,
+        win = window,
         body = doc.body,
 
       // pageXOffset and pageYOffset work everywhere except IE <9.
@@ -444,17 +447,17 @@ angular.module('packer', ['ngMaterial', 'sticky'])
         while (parent !== body) {
           offsetX += parent.scrollLeft;
           offsetY += parent.scrollTop;
-          parent   = parent.parentNode;
+          parent = parent.parentNode;
         }
       }
 
       return {
         bottom: rect.bottom + offsetY,
         height: rect.height,
-        left  : rect.left + offsetX,
-        right : rect.right + offsetX,
-        top   : rect.top + offsetY,
-        width : rect.width
+        left: rect.left + offsetX,
+        right: rect.right + offsetX,
+        top: rect.top + offsetY,
+        width: rect.width
       };
     }
 
@@ -477,11 +480,27 @@ angular.module('packer', ['ngMaterial', 'sticky'])
         });
         element.on('mouseenter', function () {
           var rect = getAbsoluteBoundingRect(element[0]);
-          preview.src = '//wow.zamimg.com/images/hearthstone/cards/enus/medium/GVG_082.png';
-          var scale = rect.width / 200;
-          preview.style.width = (scale * 200) + 'px';
-          preview.style.height = (scale * 303) + 'px';
-          preview.style.top = (rect.bottom) + 'px';
+          var scale;
+          var height;
+          if (!angular.isNumber(scope.card.gold) && scope.card.gold) {
+            preview.src = '//wow.zamimg.com/images/hearthstone/cards/enus/animated/' + scope.card.detail.id + '_premium.gif';
+            scale = rect.width / 307;
+            preview.style.width = (scale * 307) + 'px';
+            height = (scale * 465);
+            preview.style.height = height + 'px';
+          } else {
+            preview.src = '//wow.zamimg.com/images/hearthstone/cards/enus/medium/' + scope.card.detail.id + '.png';
+            scale = rect.width / 200;
+            preview.style.width = (scale * 200) + 'px';
+            height = (scale * 303);
+            preview.style.height = height + 'px';
+          }
+          var clientRect = element[0].getBoundingClientRect();
+          if (height > clientRect.top) {
+            preview.style.top = (rect.bottom) + 'px';
+          } else {
+            preview.style.top = (rect.top - height) + 'px';
+          }
           preview.style.left = rect.left + 'px';
           preview.style.display = 'block';
         });
@@ -499,5 +518,31 @@ angular.module('packer', ['ngMaterial', 'sticky'])
           event.preventDefault();
         }
       });
+    };
+  })
+  .filter('manaThenName', function() {
+    function pad(n, width, z) {
+      z = z || '0';
+      n = n + '';
+      return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    }
+
+    return function (items) {
+      var filtered = [];
+
+      angular.forEach(items, function(item, name) {
+        item.name = name;
+        filtered.push(item);
+      });
+
+      var comparator = function (card) {
+        return '' + pad(card.detail.cost,2) + card.detail.name;
+      };
+
+      filtered.sort(function (a, b) {
+        return comparator(a) > comparator(b) ? 1 : -1;
+      });
+
+      return filtered;
     };
   });
