@@ -19,7 +19,7 @@ gulp.task('deploy', ['build'], function () {
 
 
 gulp.task('copy', function () {
-  return gulp.src('dev/json/*', {base: './dist/'})
+  return gulp.src('dev/icons/*', {base: './dist/'})
     .pipe(gulp.dest('./dist/'));
 });
 
